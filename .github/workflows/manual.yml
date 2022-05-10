@@ -76,8 +76,8 @@ jobs:
       with:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
-        template: ./adf-arm-template/ARMTemplateForFactory.json
-        parameters: ./adf-arm-template/ARMTemplateParametersForFactory.json factoryName=${{ secrets.QA_FACTORY_NAME }}
+        template: ./ARMTemplateForFactory.json
+        parameters: ./ARMTemplateParametersForFactory.json factoryName=${{ secrets.QA_FACTORY_NAME }}
 
             
   DeployProd:
