@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  Build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -30,19 +30,63 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: npm ci
-      
-      - name: Validate working directory contents
-        run: ls -R -l ./
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Validate ADF Template in Repo
         run: npm run build validate ./adf ${{ secrets.DEV_ADF_RESOURCE_ID }}
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Export ADF Template in Repo
         run: npm run build export ./adf ${{ secrets.DEV_ADF_RESOURCE_ID }} "ArmTemplates"
 
       - uses: actions/upload-artifact@v3
         with:
-          name: armtemplate
+          name: adf-arm-template
           path: ./ArmTemplates
+  DeployDev:
+    name: Deploy to Dev 
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Development
+    steps:
+      - name: Deploy
+        run: echo I am deploying! 
+    
+  DeployStaging:
+    name: Deploy to Staging 
+    if: github.event.ref == 'refs/heads/main'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Staging
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: adf-arm-template
+    
+    - name: Validate working directory contents
+      run: ls -R -l ./
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Run ARM deploy
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./adf-arm-template/ARMTemplateForFactory.json
+        parameters: ./adf-arm-template/ARMTemplateParametersForFactory.json factoryName=${{ secrets.QA_FACTORY_NAME }}
+
+            
+  DeployProd:
+    name: Deploy to Production 
+    needs: [DeployStaging]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Production
+    steps:
+      - name: Deploy
+        run: echo I am deploying! 
+    
