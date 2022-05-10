@@ -64,19 +64,18 @@ jobs:
       with:
         name: adf-arm-template
 
-    - uses: Azure/get-keyvault-secrets@v1
-      with:
-        keyvault: ${{ secrets.QA_AZURE_KEY_VAULT }}
-        secrets: 'data-lake-service-url'
-      id: getAKVSecret
-      
     - name: Validate working directory contents
       run: ls -R -l ./
 
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: ${{ secrets.QA_AZURE_KEY_VAULT }}
+        secrets: 'data-lake-service-url'
+      id: getAKVSecret
+      
     - name: Run ARM deploy
       uses: azure/arm-deploy@v1
       with:
