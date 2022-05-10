@@ -72,7 +72,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - uses: Azure/get-keyvault-secrets@v1
       with:
-        keyvault: wjakvnkqa
+        keyvault: ${{ secrets.QA_AZURE_KEY_VAULT }}
         secrets: 'data-lake-service-url'
       id: getAKVSecret
       
