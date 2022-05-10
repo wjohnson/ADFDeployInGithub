@@ -36,11 +36,11 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: npm run build validate ./adf $GITHUB_DEV_ADF_RESOURCE_ID
+        run: npm run build validate ./adf ${{ secrets.DEV_ADF_RESOURCE_ID }}
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: npm run build export ./adf $GITHUB_DEV_ADF_RESOURCE_ID "ArmTemplates"
+        run: npm run build export ./adf ${{ secrets.DEV_ADF_RESOURCE_ID }} "ArmTemplates"
 
       - uses: actions/upload-artifact@v3
         with:
