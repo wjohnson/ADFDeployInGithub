@@ -60,6 +60,7 @@ jobs:
     environment: 
       name: Staging
     steps:
+    - uses: actions/checkout@v3
     - uses: actions/download-artifact@v3
       with:
         name: adf-arm-template
@@ -82,7 +83,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ./ARMTemplateForFactory.json
-        parameters: ./ARMTemplateParametersForFactory.json factoryName=${{ secrets.QA_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }}
+        parameters: ./parameters.qa.json factoryName=${{ secrets.QA_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.QA_AZURE_KEY_VAULT }}
 
             
   DeployProd:
@@ -92,6 +93,27 @@ jobs:
     environment: 
       name: Production
     steps:
-      - name: Deploy
-        run: echo I am deploying! 
-    
+    - uses: actions/checkout@v3
+    - uses: actions/download-artifact@v3
+      with:
+        name: adf-arm-template
+
+    - name: Validate working directory contents
+      run: ls -R -l ./
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: ${{ secrets.PRD_AZURE_KEY_VAULT }}
+        secrets: 'data-lake-service-url'
+      id: getAKVSecret
+      
+    - name: Run ARM deploy
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./ARMTemplateForFactory.json
+        parameters: ./parameters.prd.json factoryName=${{ secrets.PRD_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.PRD_AZURE_KEY_VAULT }}
