@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "factoryName": {
-            "value": "FACTORY_NAME"
+            "value": "STG_FACTORY_NAME"
         },
         "AzureDataLakeStorage1_properties_typeProperties_url": {
             "value": "https://STORAGEACCOUNT.dfs.core.windows.net"
