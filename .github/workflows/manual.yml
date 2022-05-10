@@ -32,13 +32,17 @@ jobs:
       - run: npm ci
       
       - name: Validate working directory contents
-        run: ls ~/
+        run: ls -R -l ./
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: npm run build export ./adf $GITHUB_DEV_ADF_RESOURCE_ID ArmTemplateOutput
+        run: npm run build validate ./adf $GITHUB_DEV_ADF_RESOURCE_ID
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: npm run build export ./adf $GITHUB_DEV_ADF_RESOURCE_ID "ArmTemplates"
 
       - uses: actions/upload-artifact@v3
         with:
           name: armtemplate
-          path: ArmTemplateOutput
+          path: ./ArmTemplates
