@@ -37,7 +37,6 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: npm run build export ./adf $GITHUB_DEV_ADF_RESOURCE_ID ArmTemplateOutput
-        working-directory: ~/
 
       - uses: actions/upload-artifact@v3
         with:
