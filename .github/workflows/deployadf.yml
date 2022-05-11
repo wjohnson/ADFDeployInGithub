@@ -2,27 +2,25 @@
 
 name: Deploy ADF
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
+    paths:
+      - 'adf/'
+      - '**.json'
   pull_request:
     branches: [ main ]
-
+    paths:
+      - 'adf/'
+      - '**.json'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   Build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       
       - uses: actions/setup-node@v3
@@ -41,6 +39,7 @@ jobs:
         with:
           name: adf-arm-template
           path: ./ArmTemplates
+
   DeployDev:
     name: Deploy to Dev 
     if: github.event_name == 'pull_request'
@@ -60,19 +59,35 @@ jobs:
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.NONPRD_AZURE_CREDENTIALS }}
+        enable-AzPSSession: true 
+
     - uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: ${{ secrets.DEV_AZURE_KEY_VAULT }}
         secrets: 'data-lake-service-url'
       id: getAKVSecret
+
+    - name: Run Pre Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.DEV_AZURE_RG }} -DataFactoryName ${{ secrets.DEV_FACTORY_NAME }} -predeployment $true -deleteDeployment $false
+        azPSVersion: "latest"
       
     - name: Run ARM deploy
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.NONPRD_AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.NONPRD_AZURE_RG }}
+        resourceGroupName: ${{ secrets.DEV_AZURE_RG }}
         template: ./ARMTemplateForFactory.json
         parameters: ./parameters.qa.json factoryName=${{ secrets.DEV_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.DEV_AZURE_KEY_VAULT }}
+  
+    - name: Run Post Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.DEV_AZURE_RG }} -DataFactoryName ${{ secrets.DEV_FACTORY_NAME }} -predeployment $false -deleteDeployment $true
+        azPSVersion: "latest"
 
     
   DeployStaging:
@@ -99,7 +114,14 @@ jobs:
         keyvault: ${{ secrets.QA_AZURE_KEY_VAULT }}
         secrets: 'data-lake-service-url'
       id: getAKVSecret
-      
+
+    - name: Run Pre Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.QA_AZURE_RG }} -DataFactoryName ${{ secrets.QA_FACTORY_NAME }} -predeployment $true -deleteDeployment $false
+        azPSVersion: "latest"
+
     - name: Run ARM deploy
       uses: azure/arm-deploy@v1
       with:
@@ -108,6 +130,12 @@ jobs:
         template: ./ARMTemplateForFactory.json
         parameters: ./parameters.qa.json factoryName=${{ secrets.QA_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.QA_AZURE_KEY_VAULT }}
 
+    - name: Run Post Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.QA_AZURE_RG }} -DataFactoryName ${{ secrets.QA_FACTORY_NAME }} -predeployment $false -deleteDeployment $true
+        azPSVersion: "latest"
             
   DeployProd:
     name: Deploy to Production 
@@ -132,6 +160,13 @@ jobs:
         keyvault: ${{ secrets.PRD_AZURE_KEY_VAULT }}
         secrets: 'data-lake-service-url'
       id: getAKVSecret
+
+    - name: Run Pre Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.PRD_AZURE_RG }} -DataFactoryName ${{ secrets.PRD_FACTORY_NAME }} -predeployment $true -deleteDeployment $false
+        azPSVersion: "latest"
       
     - name: Run ARM deploy
       uses: azure/arm-deploy@v1
@@ -140,3 +175,11 @@ jobs:
         resourceGroupName: ${{ secrets.PRD_AZURE_RG }}
         template: ./ARMTemplateForFactory.json
         parameters: ./parameters.prd.json factoryName=${{ secrets.PRD_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.PRD_AZURE_KEY_VAULT }}
+
+    - name: Run Post Deploy Script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./adf-pre-post-deploy.ps1 -armTemplate "./ARMTemplateForFactory.json" -ResourceGroupName ${{ secrets.PRD_AZURE_RG }} -DataFactoryName ${{ secrets.PRD_FACTORY_NAME }} -predeployment $false -deleteDeployment $true
+        azPSVersion: "latest"
+
