@@ -6,8 +6,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - adf/
-      - *.json
+      - 'adf/'
+      - '**.json'
   pull_request:
     branches: [ main ]
       - adf/
