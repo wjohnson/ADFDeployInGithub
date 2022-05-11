@@ -1,4 +1,6 @@
-# This is a basic workflow to help you get started with Actions
+# This workflow demonstrates building Azure Data Factory ARM Templates using
+# the NPM package provided by Microsoft along with pre and post deployment
+# scripts.
 
 name: Deploy ADF
 
@@ -109,6 +111,8 @@ jobs:
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.NONPRD_AZURE_CREDENTIALS }}
+        enable-AzPSSession: true 
+
     - uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: ${{ secrets.QA_AZURE_KEY_VAULT }}
@@ -155,6 +159,8 @@ jobs:
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.PRD_AZURE_CREDENTIALS }}
+        enable-AzPSSession: true 
+
     - uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: ${{ secrets.PRD_AZURE_KEY_VAULT }}
