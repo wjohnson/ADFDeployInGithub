@@ -42,6 +42,16 @@ For each environment, it's expected that you have a key vault specific to the Az
 
 You may choose to write non-secret parameter values in the `paramaters.<ENV>.json` in this repo instead of using Github or Key Vault secrets to inject them. In this example, I am overwriting the parameter files by specifying parameters `parameters: ./parameters.QA.json factoryName=${{ secrets.QA_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.QA_AZURE_KEY_VAULT }}`. By removing the `variable=value` from the parameters line, you would accept the values provided in the `parameters.<ENV>.json`. Alternatively, if it's not specified in your parameters file, a default value might be provided automatically (some parameter such as linked service secrets will not have a default value).
 
+## Using  Pre and Post Deployment Scripts
+
+As per the [Sample pre- and post-deployment script(MSFT Docs)](https://docs.microsoft.com/en-us/azure/data-factory/continuous-integration-delivery-sample-script_), a deployment is an incremental operation and will only update assets mentioned in the deployment.
+
+To remove an asset that is no longer referenced in the deployment, you must run an additional script to analyze what assets are no longer mentioned in your deployment and what assets exist.
+
+In addition, when there are triggers active on your data factory, you must pause the triggers so that a deployment may be made. After the deployment, triggers may be reactivated.
+
+The Microsoft docs sample script provide this functionality but it should be reviewed before your use in production.
+
 ## References
 
 * Export ADF ARM Templates with [NPM Package](https://docs.microsoft.com/en-us/azure/data-factory/continuous-integration-delivery-improvements)
