@@ -1,9 +1,9 @@
 {
-	"name": "CopyThingA1",
+	"name": "CopyThingA3",
 	"properties": {
 		"activities": [
 			{
-				"name": "Thing A1 Copy",
+				"name": "Thing A3 Copy",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
