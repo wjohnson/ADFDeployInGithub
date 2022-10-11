@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "Thing C Copy",
+				"description": "Add a description",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
