@@ -18,7 +18,7 @@ This solution assumes you've already deployed the following resources:
 
 ## Github Secrets Required:
 
-|Secret Name| DEV | QA | PRD |
+|Secret Purpose| DEV | QA | PRD |
 |-----------|-----|----|-----|
 | ADF_RESOURCE_ID | DEV_ADF_RESOURCE_ID | N/A | N/A |
 | AZURE_CREDENTIALS | NONPRD_AZURE_CREDENTIALS | NONPRD_AZURE_CREDENTIALS | PRD_AZURE_CREDENTIALS |
@@ -28,6 +28,7 @@ This solution assumes you've already deployed the following resources:
 
 * DEV_ADF_RESOURCE_ID: Should follow the pattern `/subscriptions/<subId>/resourceGroups/<rgName>/providers/Microsoft.DataFactory/factories/<dfName>`
 * AZURE_CREDENTIALS: The JSON response from the [az ad sp create-for-rbac --name {myApp} --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{MyResourceGroup} --sdk-auth](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-create-for-rbac) command.
+  * See [sample format](#secret-format-for-azure_credential)
 * AZURE_SUBSCRIPTION: The subscription id for this environment.
 * AZURE_RG: The name of the resource group for this environment.
 * AZURE_KEY_VAULT: The name of the key vault for this environment.
@@ -61,3 +62,20 @@ The Microsoft docs sample script provide this functionality but it should be rev
 * [Github Action Upload Artifact](https://github.com/actions/upload-artifact)
 * [Github Action Download Artifact](https://github.com/actions/download-artifact)
 * [Github Action Deploy ARM Templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-github-actions)
+
+## Secret Format for AZURE_CREDENTIAL
+
+```json
+{
+  "clientId": "...",
+  "clientSecret": "...",
+  "subscriptionId": "...",
+  "tenantId": "...",
+  "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+  "resourceManagerEndpointUrl": "https://management.azure.com/",
+  "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+  "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+  "galleryEndpointUrl": "https://gallery.azure.com/",
+  "managementEndpointUrl": "https://management.core.windows.net/"
+}
+```

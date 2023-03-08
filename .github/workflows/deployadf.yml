@@ -130,7 +130,7 @@ jobs:
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.NONPRD_AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.NONPRD_AZURE_RG }}
+        resourceGroupName: ${{ secrets.QA_AZURE_RG }}
         template: ./ARMTemplateForFactory.json
         parameters: ./parameters.qa.json factoryName=${{ secrets.QA_FACTORY_NAME }} AzureDataLakeStorage1_properties_typeProperties_url=${{ steps.getAKVSecret.outputs.data-lake-service-url }} AzureKeyVault1_properties_typeProperties_baseUrl=${{ secrets.QA_AZURE_KEY_VAULT }}
 
